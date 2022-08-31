@@ -1,0 +1,64 @@
+{
+  "applications": "*",
+  "changelogDate": "20220831231322",
+  "dto": "mapstruct",
+  "embedded": false,
+  "entityTableName": "store",
+  "fields": [
+    {
+      "fieldName": "name",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "description",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "storeUrl",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "logoUrl",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "bannerUrl",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "contactEmail",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "contactPhone",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "contactAddress",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "status",
+      "fieldType": "Status",
+      "fieldValidateRules": ["required"],
+      "fieldValues": "ACTIVE,INACTIVE"
+    }
+  ],
+  "fluentMethods": true,
+  "javadoc": "Database Schema Design",
+  "jpaMetamodelFiltering": true,
+  "name": "Store",
+  "pagination": "pagination",
+  "readOnly": false,
+  "relationships": [
+    {
+      "otherEntityName": "storeCategory",
+      "otherEntityRelationshipName": "store",
+      "ownerSide": true,
+      "relationshipName": "storeCategory",
+      "relationshipType": "one-to-one"
+    }
+  ],
+  "service": "serviceImpl"
+}
