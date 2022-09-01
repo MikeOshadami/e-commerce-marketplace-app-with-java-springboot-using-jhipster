@@ -99,6 +99,9 @@ public class StoreCategoryQueryService extends QueryService<StoreCategory> {
             if (criteria.getStatus() != null) {
                 specification = specification.and(buildSpecification(criteria.getStatus(), StoreCategory_.status));
             }
+            if (criteria.getDateCreated() != null) {
+                specification = specification.and(buildRangeSpecification(criteria.getDateCreated(), StoreCategory_.dateCreated));
+            }
             if (criteria.getStoreId() != null) {
                 specification =
                     specification.and(

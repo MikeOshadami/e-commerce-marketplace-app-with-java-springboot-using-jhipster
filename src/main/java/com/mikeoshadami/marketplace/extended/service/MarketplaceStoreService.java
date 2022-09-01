@@ -5,4 +5,6 @@ import com.mikeoshadami.marketplace.extended.dto.OpenStoreDto;
 
 public interface MarketplaceStoreService {
     DefaultApiResponse openStore(OpenStoreDto openStoreDto);
+
+    DefaultApiResponse storeLookupDetails(String alias);
 }

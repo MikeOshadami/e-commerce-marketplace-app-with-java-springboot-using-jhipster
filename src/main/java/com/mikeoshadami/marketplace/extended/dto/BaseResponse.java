@@ -14,26 +14,6 @@ public class BaseResponse<T> {
     @JsonProperty(value = "data")
     private T data;
 
-    private Map<String, Object> _meta;
-    private Map<String, Object> _links;
-
-    public Map<String, Object> get_meta() {
-        return _meta;
-    }
-
-    public void set_meta(Map<String, Object> _meta) {
-        this._meta = _meta;
-    }
-
-    public Map<String, Object> get_links() {
-        return _links;
-    }
-
-    public void set_links(Map<String, Object> _links) {
-        this._links = _links;
-    }
-
-
     public String getStatus() {
         return status;
     }
@@ -69,8 +49,6 @@ public class BaseResponse<T> {
             "status='" + status + '\'' +
             ", message='" + message + '\'' +
             ", data=" + data +
-            ", _meta=" + _meta +
-            ", _links=" + _links +
             '}';
     }
 }

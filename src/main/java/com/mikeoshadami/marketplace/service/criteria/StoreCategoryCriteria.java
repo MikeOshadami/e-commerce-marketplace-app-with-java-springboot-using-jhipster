@@ -9,6 +9,7 @@ import tech.jhipster.service.filter.BooleanFilter;
 import tech.jhipster.service.filter.DoubleFilter;
 import tech.jhipster.service.filter.Filter;
 import tech.jhipster.service.filter.FloatFilter;
+import tech.jhipster.service.filter.InstantFilter;
 import tech.jhipster.service.filter.IntegerFilter;
 import tech.jhipster.service.filter.LongFilter;
 import tech.jhipster.service.filter.StringFilter;
@@ -52,6 +53,8 @@ public class StoreCategoryCriteria implements Serializable, Criteria {
 
     private StatusFilter status;
 
+    private InstantFilter dateCreated;
+
     private LongFilter storeId;
 
     private Boolean distinct;
@@ -63,6 +66,7 @@ public class StoreCategoryCriteria implements Serializable, Criteria {
         this.name = other.name == null ? null : other.name.copy();
         this.description = other.description == null ? null : other.description.copy();
         this.status = other.status == null ? null : other.status.copy();
+        this.dateCreated = other.dateCreated == null ? null : other.dateCreated.copy();
         this.storeId = other.storeId == null ? null : other.storeId.copy();
         this.distinct = other.distinct;
     }
@@ -132,6 +136,21 @@ public class StoreCategoryCriteria implements Serializable, Criteria {
         this.status = status;
     }
 
+    public InstantFilter getDateCreated() {
+        return dateCreated;
+    }
+
+    public InstantFilter dateCreated() {
+        if (dateCreated == null) {
+            dateCreated = new InstantFilter();
+        }
+        return dateCreated;
+    }
+
+    public void setDateCreated(InstantFilter dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+
     public LongFilter getStoreId() {
         return storeId;
     }
@@ -169,6 +188,7 @@ public class StoreCategoryCriteria implements Serializable, Criteria {
             Objects.equals(name, that.name) &&
             Objects.equals(description, that.description) &&
             Objects.equals(status, that.status) &&
+            Objects.equals(dateCreated, that.dateCreated) &&
             Objects.equals(storeId, that.storeId) &&
             Objects.equals(distinct, that.distinct)
         );
@@ -176,7 +196,7 @@ public class StoreCategoryCriteria implements Serializable, Criteria {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, status, storeId, distinct);
+        return Objects.hash(id, name, description, status, dateCreated, storeId, distinct);
     }
 
     // prettier-ignore
@@ -187,6 +207,7 @@ public class StoreCategoryCriteria implements Serializable, Criteria {
             (name != null ? "name=" + name + ", " : "") +
             (description != null ? "description=" + description + ", " : "") +
             (status != null ? "status=" + status + ", " : "") +
+            (dateCreated != null ? "dateCreated=" + dateCreated + ", " : "") +
             (storeId != null ? "storeId=" + storeId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";

@@ -3,6 +3,7 @@ package com.mikeoshadami.marketplace.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.mikeoshadami.marketplace.domain.enumeration.Status;
 import java.io.Serializable;
+import java.time.Instant;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.hibernate.annotations.Cache;
@@ -24,7 +25,7 @@ public class StoreCategory implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
     @NotNull
@@ -36,7 +37,11 @@ public class StoreCategory implements Serializable {
     @Column(name = "status", nullable = false)
     private Status status;
 
-    @JsonIgnoreProperties(value = { "storeCategory" }, allowSetters = true)
+    @NotNull
+    @Column(name = "date_created", nullable = false)
+    private Instant dateCreated;
+
+    @JsonIgnoreProperties(value = { "storeCategory", "productCategories", "products" }, allowSetters = true)
     @OneToOne(mappedBy = "storeCategory")
     private Store store;
 
@@ -94,6 +99,19 @@ public class StoreCategory implements Serializable {
         this.status = status;
     }
 
+    public Instant getDateCreated() {
+        return this.dateCreated;
+    }
+
+    public StoreCategory dateCreated(Instant dateCreated) {
+        this.setDateCreated(dateCreated);
+        return this;
+    }
+
+    public void setDateCreated(Instant dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+
     public Store getStore() {
         return this.store;
     }
@@ -140,6 +158,7 @@ public class StoreCategory implements Serializable {
             ", name='" + getName() + "'" +
             ", description='" + getDescription() + "'" +
             ", status='" + getStatus() + "'" +
+            ", dateCreated='" + getDateCreated() + "'" +
             "}";
     }
 }

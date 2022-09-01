@@ -114,8 +114,14 @@ public class StoreQueryService extends QueryService<Store> {
             if (criteria.getContactAddress() != null) {
                 specification = specification.and(buildStringSpecification(criteria.getContactAddress(), Store_.contactAddress));
             }
+            if (criteria.getAlias() != null) {
+                specification = specification.and(buildStringSpecification(criteria.getAlias(), Store_.alias));
+            }
             if (criteria.getStatus() != null) {
                 specification = specification.and(buildSpecification(criteria.getStatus(), Store_.status));
+            }
+            if (criteria.getDateCreated() != null) {
+                specification = specification.and(buildRangeSpecification(criteria.getDateCreated(), Store_.dateCreated));
             }
             if (criteria.getStoreCategoryId() != null) {
                 specification =
@@ -124,6 +130,21 @@ public class StoreQueryService extends QueryService<Store> {
                             criteria.getStoreCategoryId(),
                             root -> root.join(Store_.storeCategory, JoinType.LEFT).get(StoreCategory_.id)
                         )
+                    );
+            }
+            if (criteria.getProductCategoryId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(
+                            criteria.getProductCategoryId(),
+                            root -> root.join(Store_.productCategories, JoinType.LEFT).get(ProductCategory_.id)
+                        )
+                    );
+            }
+            if (criteria.getProductId() != null) {
+                specification =
+                    specification.and(
+                        buildSpecification(criteria.getProductId(), root -> root.join(Store_.products, JoinType.LEFT).get(Product_.id))
                     );
             }
         }

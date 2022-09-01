@@ -2,6 +2,7 @@ package com.mikeoshadami.marketplace.service.dto;
 
 import com.mikeoshadami.marketplace.domain.enumeration.Status;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Objects;
 import javax.validation.constraints.*;
 
@@ -20,6 +21,9 @@ public class StoreCategoryDTO implements Serializable {
 
     @NotNull
     private Status status;
+
+    @NotNull
+    private Instant dateCreated;
 
     public Long getId() {
         return id;
@@ -53,6 +57,14 @@ public class StoreCategoryDTO implements Serializable {
         this.status = status;
     }
 
+    public Instant getDateCreated() {
+        return dateCreated;
+    }
+
+    public void setDateCreated(Instant dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -82,6 +94,7 @@ public class StoreCategoryDTO implements Serializable {
             ", name='" + getName() + "'" +
             ", description='" + getDescription() + "'" +
             ", status='" + getStatus() + "'" +
+            ", dateCreated='" + getDateCreated() + "'" +
             "}";
     }
 }

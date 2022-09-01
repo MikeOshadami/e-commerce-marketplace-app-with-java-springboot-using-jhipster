@@ -1,11 +1,11 @@
-id;name;description;store_url;logo_url;banner_url;contact_email;contact_phone;contact_address;status
-1;service-desk Uganda Indiana;Consultant;Administrator;Fantastic;Place copy;facilitate;end-to-end Western Keys;EXE;ACTIVE
-2;asymmetric;Corners Small Fantastic;optimize firewall invoice;Dollar Manager;withdrawal;Garden benchmark;Borders;Focused Tuna;ACTIVE
-3;Organized Berkshire;auxiliary technologies;matrix;Senior;interface;Technician Avon Bacon;Congo Orchestrator;leverage metrics Zambia;ACTIVE
-4;Usability;Health;Associate;Integrated Applications;1080p salmon virtual;intuitive Berkshire;ADP Concrete EXE;invoice Data generation;INACTIVE
-5;Customer ADP;Texas Consultant;Account Fresh;bandwidth generate;payment aggregate interface;expedite;Synergized;Sleek Metal;INACTIVE
-6;port XSS Fuerte;Future-proofed deposit front-end;withdrawal;Paradigm;robust firewall multimedia;Checking;Account Handmade Key;Savings;ACTIVE
-7;Licensed granular Summit;Unbranded;Associate;Wooden;Street;brand Product;Principal Indiana SMS;Handmade optical implement;INACTIVE
-8;Identity;multi-byte Seamless platforms;olive Chips Account;Director Rwanda;hacking Granite Berkshire;Peru;Tennessee Rustic;payment;ACTIVE
-9;program AI;Mobility;Tugrik Baby;Movies Soft;initiatives Niue;Kansas static;Pa'anga Chips Developer;firewall;ACTIVE
-10;Engineer interactive Morocco;transmitter;content;Specialist;Intelligent auxiliary transitional;initiatives Delaware;frame Courts Balanced;Account Berkshire Legacy;INACTIVE
+id;name;description;store_url;logo_url;banner_url;contact_email;contact_phone;contact_address;alias;status;date_created
+1;service-desk Uganda Indiana;Consultant;Administrator;Fantastic;Place copy;facilitate;end-to-end Western Keys;EXE;Home;ACTIVE;2022-08-31T05:08:39
+2;Intelligent Small;optimize firewall invoice;Dollar Manager;withdrawal;Garden benchmark;Borders;Focused Tuna;Market;Berkshire Buckinghamshire maroon;ACTIVE;2022-08-31T15:45:35
+3;Program Senior;interface;Technician Avon Bacon;Congo Orchestrator;leverage metrics Zambia;lavender;Steel Program Rubber;Applications Data;salmon virtual Inlet;INACTIVE;2022-08-31T11:26:58
+4;Accounts Isle;optimizing EXE Technician;Data generation;Cambridgeshire visionary forecast;parse Central Fresh;generating Handmade transmitting;withdrawal orchid;bypass deposit;XSS;ACTIVE;2022-08-31T10:51:16
+5;Metal payment;transmitting;Fuerte Manager;deposit;Massachusetts withdrawal;Paradigm;robust firewall multimedia;Checking;Account Handmade Key;ACTIVE;2022-08-31T08:26:35
+6;Music;copying;brand;intelligence auxiliary Ergonomic;implementation Maryland;Unbranded Tokelau;Park Throughway Handmade;synthesizing Iranian Awesome;innovate multi-byte Seamless;ACTIVE;2022-08-31T19:55:40
+7;Manager Renminbi orchid;redefine SMTP;transmitting;Granite Berkshire intermediate;Borders Computer GB;Plastic program;reintermediate Mobility infomediaries;Baby Avenue Dollar;Berkshire Malaysia;INACTIVE;2022-08-31T13:19:42
+8;interface transmitting;cross-platform Designer Cuban;Berkshire parse pink;Morocco lime;Grocery;utilisation compelling yellow;auxiliary;Customer;Car Tuna;ACTIVE;2022-08-31T14:32:20
+9;Courts;Practical;Berkshire Legacy;Lane synthesize monitor;multi-byte Planner magnetic;Refined;Granite;Legacy Fresh Assimilated;Borders;INACTIVE;2022-08-31T10:10:21
+10;input;Euro monitor Home;Corporate;Granite;synthesizing Paradigm;generate HTTP incubate;archive Developer;schemas Health bypass;deposit orange;INACTIVE;2022-08-31T20:15:53

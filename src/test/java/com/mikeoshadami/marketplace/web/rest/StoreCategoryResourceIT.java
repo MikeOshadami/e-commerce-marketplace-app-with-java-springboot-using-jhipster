@@ -13,6 +13,8 @@ import com.mikeoshadami.marketplace.repository.StoreCategoryRepository;
 import com.mikeoshadami.marketplace.service.criteria.StoreCategoryCriteria;
 import com.mikeoshadami.marketplace.service.dto.StoreCategoryDTO;
 import com.mikeoshadami.marketplace.service.mapper.StoreCategoryMapper;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -43,6 +45,9 @@ class StoreCategoryResourceIT {
     private static final Status DEFAULT_STATUS = Status.ACTIVE;
     private static final Status UPDATED_STATUS = Status.INACTIVE;
 
+    private static final Instant DEFAULT_DATE_CREATED = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_DATE_CREATED = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+
     private static final String ENTITY_API_URL = "/api/store-categories";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
 
@@ -70,7 +75,11 @@ class StoreCategoryResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static StoreCategory createEntity(EntityManager em) {
-        StoreCategory storeCategory = new StoreCategory().name(DEFAULT_NAME).description(DEFAULT_DESCRIPTION).status(DEFAULT_STATUS);
+        StoreCategory storeCategory = new StoreCategory()
+            .name(DEFAULT_NAME)
+            .description(DEFAULT_DESCRIPTION)
+            .status(DEFAULT_STATUS)
+            .dateCreated(DEFAULT_DATE_CREATED);
         // Add required entity
         Store store;
         if (TestUtil.findAll(em, Store.class).isEmpty()) {
@@ -91,7 +100,11 @@ class StoreCategoryResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static StoreCategory createUpdatedEntity(EntityManager em) {
-        StoreCategory storeCategory = new StoreCategory().name(UPDATED_NAME).description(UPDATED_DESCRIPTION).status(UPDATED_STATUS);
+        StoreCategory storeCategory = new StoreCategory()
+            .name(UPDATED_NAME)
+            .description(UPDATED_DESCRIPTION)
+            .status(UPDATED_STATUS)
+            .dateCreated(UPDATED_DATE_CREATED);
         // Add required entity
         Store store;
         if (TestUtil.findAll(em, Store.class).isEmpty()) {
@@ -129,6 +142,7 @@ class StoreCategoryResourceIT {
         assertThat(testStoreCategory.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testStoreCategory.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
         assertThat(testStoreCategory.getStatus()).isEqualTo(DEFAULT_STATUS);
+        assertThat(testStoreCategory.getDateCreated()).isEqualTo(DEFAULT_DATE_CREATED);
     }
 
     @Test
@@ -214,6 +228,26 @@ class StoreCategoryResourceIT {
 
     @Test
     @Transactional
+    void checkDateCreatedIsRequired() throws Exception {
+        int databaseSizeBeforeTest = storeCategoryRepository.findAll().size();
+        // set the field null
+        storeCategory.setDateCreated(null);
+
+        // Create the StoreCategory, which fails.
+        StoreCategoryDTO storeCategoryDTO = storeCategoryMapper.toDto(storeCategory);
+
+        restStoreCategoryMockMvc
+            .perform(
+                post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(storeCategoryDTO))
+            )
+            .andExpect(status().isBadRequest());
+
+        List<StoreCategory> storeCategoryList = storeCategoryRepository.findAll();
+        assertThat(storeCategoryList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void getAllStoreCategories() throws Exception {
         // Initialize the database
         storeCategoryRepository.saveAndFlush(storeCategory);
@@ -226,7 +260,8 @@ class StoreCategoryResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(storeCategory.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
-            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())));
+            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
+            .andExpect(jsonPath("$.[*].dateCreated").value(hasItem(DEFAULT_DATE_CREATED.toString())));
     }
 
     @Test
@@ -243,7 +278,8 @@ class StoreCategoryResourceIT {
             .andExpect(jsonPath("$.id").value(storeCategory.getId().intValue()))
             .andExpect(jsonPath("$.name").value(DEFAULT_NAME))
             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION))
-            .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()));
+            .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()))
+            .andExpect(jsonPath("$.dateCreated").value(DEFAULT_DATE_CREATED.toString()));
     }
 
     @Test
@@ -474,6 +510,58 @@ class StoreCategoryResourceIT {
 
     @Test
     @Transactional
+    void getAllStoreCategoriesByDateCreatedIsEqualToSomething() throws Exception {
+        // Initialize the database
+        storeCategoryRepository.saveAndFlush(storeCategory);
+
+        // Get all the storeCategoryList where dateCreated equals to DEFAULT_DATE_CREATED
+        defaultStoreCategoryShouldBeFound("dateCreated.equals=" + DEFAULT_DATE_CREATED);
+
+        // Get all the storeCategoryList where dateCreated equals to UPDATED_DATE_CREATED
+        defaultStoreCategoryShouldNotBeFound("dateCreated.equals=" + UPDATED_DATE_CREATED);
+    }
+
+    @Test
+    @Transactional
+    void getAllStoreCategoriesByDateCreatedIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        storeCategoryRepository.saveAndFlush(storeCategory);
+
+        // Get all the storeCategoryList where dateCreated not equals to DEFAULT_DATE_CREATED
+        defaultStoreCategoryShouldNotBeFound("dateCreated.notEquals=" + DEFAULT_DATE_CREATED);
+
+        // Get all the storeCategoryList where dateCreated not equals to UPDATED_DATE_CREATED
+        defaultStoreCategoryShouldBeFound("dateCreated.notEquals=" + UPDATED_DATE_CREATED);
+    }
+
+    @Test
+    @Transactional
+    void getAllStoreCategoriesByDateCreatedIsInShouldWork() throws Exception {
+        // Initialize the database
+        storeCategoryRepository.saveAndFlush(storeCategory);
+
+        // Get all the storeCategoryList where dateCreated in DEFAULT_DATE_CREATED or UPDATED_DATE_CREATED
+        defaultStoreCategoryShouldBeFound("dateCreated.in=" + DEFAULT_DATE_CREATED + "," + UPDATED_DATE_CREATED);
+
+        // Get all the storeCategoryList where dateCreated equals to UPDATED_DATE_CREATED
+        defaultStoreCategoryShouldNotBeFound("dateCreated.in=" + UPDATED_DATE_CREATED);
+    }
+
+    @Test
+    @Transactional
+    void getAllStoreCategoriesByDateCreatedIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        storeCategoryRepository.saveAndFlush(storeCategory);
+
+        // Get all the storeCategoryList where dateCreated is not null
+        defaultStoreCategoryShouldBeFound("dateCreated.specified=true");
+
+        // Get all the storeCategoryList where dateCreated is null
+        defaultStoreCategoryShouldNotBeFound("dateCreated.specified=false");
+    }
+
+    @Test
+    @Transactional
     void getAllStoreCategoriesByStoreIsEqualToSomething() throws Exception {
         // Get already existing entity
         Store store = storeCategory.getStore();
@@ -498,7 +586,8 @@ class StoreCategoryResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(storeCategory.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
             .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION)))
-            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())));
+            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
+            .andExpect(jsonPath("$.[*].dateCreated").value(hasItem(DEFAULT_DATE_CREATED.toString())));
 
         // Check, that the count call also returns 1
         restStoreCategoryMockMvc
@@ -546,7 +635,7 @@ class StoreCategoryResourceIT {
         StoreCategory updatedStoreCategory = storeCategoryRepository.findById(storeCategory.getId()).get();
         // Disconnect from session so that the updates on updatedStoreCategory are not directly saved in db
         em.detach(updatedStoreCategory);
-        updatedStoreCategory.name(UPDATED_NAME).description(UPDATED_DESCRIPTION).status(UPDATED_STATUS);
+        updatedStoreCategory.name(UPDATED_NAME).description(UPDATED_DESCRIPTION).status(UPDATED_STATUS).dateCreated(UPDATED_DATE_CREATED);
         StoreCategoryDTO storeCategoryDTO = storeCategoryMapper.toDto(updatedStoreCategory);
 
         restStoreCategoryMockMvc
@@ -564,6 +653,7 @@ class StoreCategoryResourceIT {
         assertThat(testStoreCategory.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testStoreCategory.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
         assertThat(testStoreCategory.getStatus()).isEqualTo(UPDATED_STATUS);
+        assertThat(testStoreCategory.getDateCreated()).isEqualTo(UPDATED_DATE_CREATED);
     }
 
     @Test
@@ -645,7 +735,7 @@ class StoreCategoryResourceIT {
         StoreCategory partialUpdatedStoreCategory = new StoreCategory();
         partialUpdatedStoreCategory.setId(storeCategory.getId());
 
-        partialUpdatedStoreCategory.name(UPDATED_NAME).description(UPDATED_DESCRIPTION);
+        partialUpdatedStoreCategory.name(UPDATED_NAME).description(UPDATED_DESCRIPTION).dateCreated(UPDATED_DATE_CREATED);
 
         restStoreCategoryMockMvc
             .perform(
@@ -662,6 +752,7 @@ class StoreCategoryResourceIT {
         assertThat(testStoreCategory.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testStoreCategory.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
         assertThat(testStoreCategory.getStatus()).isEqualTo(DEFAULT_STATUS);
+        assertThat(testStoreCategory.getDateCreated()).isEqualTo(UPDATED_DATE_CREATED);
     }
 
     @Test
@@ -676,7 +767,11 @@ class StoreCategoryResourceIT {
         StoreCategory partialUpdatedStoreCategory = new StoreCategory();
         partialUpdatedStoreCategory.setId(storeCategory.getId());
 
-        partialUpdatedStoreCategory.name(UPDATED_NAME).description(UPDATED_DESCRIPTION).status(UPDATED_STATUS);
+        partialUpdatedStoreCategory
+            .name(UPDATED_NAME)
+            .description(UPDATED_DESCRIPTION)
+            .status(UPDATED_STATUS)
+            .dateCreated(UPDATED_DATE_CREATED);
 
         restStoreCategoryMockMvc
             .perform(
@@ -693,6 +788,7 @@ class StoreCategoryResourceIT {
         assertThat(testStoreCategory.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testStoreCategory.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
         assertThat(testStoreCategory.getStatus()).isEqualTo(UPDATED_STATUS);
+        assertThat(testStoreCategory.getDateCreated()).isEqualTo(UPDATED_DATE_CREATED);
     }
 
     @Test

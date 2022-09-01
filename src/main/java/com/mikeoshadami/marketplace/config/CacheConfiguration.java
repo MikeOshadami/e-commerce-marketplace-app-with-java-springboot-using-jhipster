@@ -50,6 +50,11 @@ public class CacheConfiguration {
             createCache(cm, com.mikeoshadami.marketplace.domain.User.class.getName() + ".authorities");
             createCache(cm, com.mikeoshadami.marketplace.domain.Store.class.getName());
             createCache(cm, com.mikeoshadami.marketplace.domain.StoreCategory.class.getName());
+            createCache(cm, com.mikeoshadami.marketplace.domain.Product.class.getName());
+            createCache(cm, com.mikeoshadami.marketplace.domain.ProductCategory.class.getName());
+            createCache(cm, com.mikeoshadami.marketplace.domain.ProductCategory.class.getName() + ".products");
+            createCache(cm, com.mikeoshadami.marketplace.domain.Store.class.getName() + ".productCategories");
+            createCache(cm, com.mikeoshadami.marketplace.domain.Store.class.getName() + ".products");
             // jhipster-needle-ehcache-add-entry
         };
     }

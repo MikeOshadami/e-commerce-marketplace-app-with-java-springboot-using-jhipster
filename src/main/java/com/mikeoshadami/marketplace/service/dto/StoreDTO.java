@@ -3,6 +3,7 @@ package com.mikeoshadami.marketplace.service.dto;
 import com.mikeoshadami.marketplace.domain.enumeration.Status;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Objects;
 import javax.validation.constraints.*;
 
@@ -32,7 +33,13 @@ public class StoreDTO implements Serializable {
     private String contactAddress;
 
     @NotNull
+    private String alias;
+
+    @NotNull
     private Status status;
+
+    @NotNull
+    private Instant dateCreated;
 
     private StoreCategoryDTO storeCategory;
 
@@ -108,12 +115,28 @@ public class StoreDTO implements Serializable {
         this.contactAddress = contactAddress;
     }
 
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
     public Status getStatus() {
         return status;
     }
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public Instant getDateCreated() {
+        return dateCreated;
+    }
+
+    public void setDateCreated(Instant dateCreated) {
+        this.dateCreated = dateCreated;
     }
 
     public StoreCategoryDTO getStoreCategory() {
@@ -158,7 +181,9 @@ public class StoreDTO implements Serializable {
             ", contactEmail='" + getContactEmail() + "'" +
             ", contactPhone='" + getContactPhone() + "'" +
             ", contactAddress='" + getContactAddress() + "'" +
+            ", alias='" + getAlias() + "'" +
             ", status='" + getStatus() + "'" +
+            ", dateCreated='" + getDateCreated() + "'" +
             ", storeCategory=" + getStoreCategory() +
             "}";
     }

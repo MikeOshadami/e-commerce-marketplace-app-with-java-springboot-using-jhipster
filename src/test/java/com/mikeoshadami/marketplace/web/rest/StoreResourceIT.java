@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.mikeoshadami.marketplace.IntegrationTest;
+import com.mikeoshadami.marketplace.domain.Product;
+import com.mikeoshadami.marketplace.domain.ProductCategory;
 import com.mikeoshadami.marketplace.domain.Store;
 import com.mikeoshadami.marketplace.domain.StoreCategory;
 import com.mikeoshadami.marketplace.domain.enumeration.Status;
@@ -13,6 +15,8 @@ import com.mikeoshadami.marketplace.repository.StoreRepository;
 import com.mikeoshadami.marketplace.service.criteria.StoreCriteria;
 import com.mikeoshadami.marketplace.service.dto.StoreDTO;
 import com.mikeoshadami.marketplace.service.mapper.StoreMapper;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
@@ -58,8 +62,14 @@ class StoreResourceIT {
     private static final String DEFAULT_CONTACT_ADDRESS = "AAAAAAAAAA";
     private static final String UPDATED_CONTACT_ADDRESS = "BBBBBBBBBB";
 
+    private static final String DEFAULT_ALIAS = "AAAAAAAAAA";
+    private static final String UPDATED_ALIAS = "BBBBBBBBBB";
+
     private static final Status DEFAULT_STATUS = Status.ACTIVE;
     private static final Status UPDATED_STATUS = Status.INACTIVE;
+
+    private static final Instant DEFAULT_DATE_CREATED = Instant.ofEpochMilli(0L);
+    private static final Instant UPDATED_DATE_CREATED = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
     private static final String ENTITY_API_URL = "/api/stores";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -97,7 +107,9 @@ class StoreResourceIT {
             .contactEmail(DEFAULT_CONTACT_EMAIL)
             .contactPhone(DEFAULT_CONTACT_PHONE)
             .contactAddress(DEFAULT_CONTACT_ADDRESS)
-            .status(DEFAULT_STATUS);
+            .alias(DEFAULT_ALIAS)
+            .status(DEFAULT_STATUS)
+            .dateCreated(DEFAULT_DATE_CREATED);
         return store;
     }
 
@@ -117,7 +129,9 @@ class StoreResourceIT {
             .contactEmail(UPDATED_CONTACT_EMAIL)
             .contactPhone(UPDATED_CONTACT_PHONE)
             .contactAddress(UPDATED_CONTACT_ADDRESS)
-            .status(UPDATED_STATUS);
+            .alias(UPDATED_ALIAS)
+            .status(UPDATED_STATUS)
+            .dateCreated(UPDATED_DATE_CREATED);
         return store;
     }
 
@@ -148,7 +162,9 @@ class StoreResourceIT {
         assertThat(testStore.getContactEmail()).isEqualTo(DEFAULT_CONTACT_EMAIL);
         assertThat(testStore.getContactPhone()).isEqualTo(DEFAULT_CONTACT_PHONE);
         assertThat(testStore.getContactAddress()).isEqualTo(DEFAULT_CONTACT_ADDRESS);
+        assertThat(testStore.getAlias()).isEqualTo(DEFAULT_ALIAS);
         assertThat(testStore.getStatus()).isEqualTo(DEFAULT_STATUS);
+        assertThat(testStore.getDateCreated()).isEqualTo(DEFAULT_DATE_CREATED);
     }
 
     @Test
@@ -190,10 +206,46 @@ class StoreResourceIT {
 
     @Test
     @Transactional
+    void checkAliasIsRequired() throws Exception {
+        int databaseSizeBeforeTest = storeRepository.findAll().size();
+        // set the field null
+        store.setAlias(null);
+
+        // Create the Store, which fails.
+        StoreDTO storeDTO = storeMapper.toDto(store);
+
+        restStoreMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(storeDTO)))
+            .andExpect(status().isBadRequest());
+
+        List<Store> storeList = storeRepository.findAll();
+        assertThat(storeList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
     void checkStatusIsRequired() throws Exception {
         int databaseSizeBeforeTest = storeRepository.findAll().size();
         // set the field null
         store.setStatus(null);
+
+        // Create the Store, which fails.
+        StoreDTO storeDTO = storeMapper.toDto(store);
+
+        restStoreMockMvc
+            .perform(post(ENTITY_API_URL).contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(storeDTO)))
+            .andExpect(status().isBadRequest());
+
+        List<Store> storeList = storeRepository.findAll();
+        assertThat(storeList).hasSize(databaseSizeBeforeTest);
+    }
+
+    @Test
+    @Transactional
+    void checkDateCreatedIsRequired() throws Exception {
+        int databaseSizeBeforeTest = storeRepository.findAll().size();
+        // set the field null
+        store.setDateCreated(null);
 
         // Create the Store, which fails.
         StoreDTO storeDTO = storeMapper.toDto(store);
@@ -226,7 +278,9 @@ class StoreResourceIT {
             .andExpect(jsonPath("$.[*].contactEmail").value(hasItem(DEFAULT_CONTACT_EMAIL)))
             .andExpect(jsonPath("$.[*].contactPhone").value(hasItem(DEFAULT_CONTACT_PHONE)))
             .andExpect(jsonPath("$.[*].contactAddress").value(hasItem(DEFAULT_CONTACT_ADDRESS)))
-            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())));
+            .andExpect(jsonPath("$.[*].alias").value(hasItem(DEFAULT_ALIAS)))
+            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
+            .andExpect(jsonPath("$.[*].dateCreated").value(hasItem(DEFAULT_DATE_CREATED.toString())));
     }
 
     @Test
@@ -249,7 +303,9 @@ class StoreResourceIT {
             .andExpect(jsonPath("$.contactEmail").value(DEFAULT_CONTACT_EMAIL))
             .andExpect(jsonPath("$.contactPhone").value(DEFAULT_CONTACT_PHONE))
             .andExpect(jsonPath("$.contactAddress").value(DEFAULT_CONTACT_ADDRESS))
-            .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()));
+            .andExpect(jsonPath("$.alias").value(DEFAULT_ALIAS))
+            .andExpect(jsonPath("$.status").value(DEFAULT_STATUS.toString()))
+            .andExpect(jsonPath("$.dateCreated").value(DEFAULT_DATE_CREATED.toString()));
     }
 
     @Test
@@ -896,6 +952,84 @@ class StoreResourceIT {
 
     @Test
     @Transactional
+    void getAllStoresByAliasIsEqualToSomething() throws Exception {
+        // Initialize the database
+        storeRepository.saveAndFlush(store);
+
+        // Get all the storeList where alias equals to DEFAULT_ALIAS
+        defaultStoreShouldBeFound("alias.equals=" + DEFAULT_ALIAS);
+
+        // Get all the storeList where alias equals to UPDATED_ALIAS
+        defaultStoreShouldNotBeFound("alias.equals=" + UPDATED_ALIAS);
+    }
+
+    @Test
+    @Transactional
+    void getAllStoresByAliasIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        storeRepository.saveAndFlush(store);
+
+        // Get all the storeList where alias not equals to DEFAULT_ALIAS
+        defaultStoreShouldNotBeFound("alias.notEquals=" + DEFAULT_ALIAS);
+
+        // Get all the storeList where alias not equals to UPDATED_ALIAS
+        defaultStoreShouldBeFound("alias.notEquals=" + UPDATED_ALIAS);
+    }
+
+    @Test
+    @Transactional
+    void getAllStoresByAliasIsInShouldWork() throws Exception {
+        // Initialize the database
+        storeRepository.saveAndFlush(store);
+
+        // Get all the storeList where alias in DEFAULT_ALIAS or UPDATED_ALIAS
+        defaultStoreShouldBeFound("alias.in=" + DEFAULT_ALIAS + "," + UPDATED_ALIAS);
+
+        // Get all the storeList where alias equals to UPDATED_ALIAS
+        defaultStoreShouldNotBeFound("alias.in=" + UPDATED_ALIAS);
+    }
+
+    @Test
+    @Transactional
+    void getAllStoresByAliasIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        storeRepository.saveAndFlush(store);
+
+        // Get all the storeList where alias is not null
+        defaultStoreShouldBeFound("alias.specified=true");
+
+        // Get all the storeList where alias is null
+        defaultStoreShouldNotBeFound("alias.specified=false");
+    }
+
+    @Test
+    @Transactional
+    void getAllStoresByAliasContainsSomething() throws Exception {
+        // Initialize the database
+        storeRepository.saveAndFlush(store);
+
+        // Get all the storeList where alias contains DEFAULT_ALIAS
+        defaultStoreShouldBeFound("alias.contains=" + DEFAULT_ALIAS);
+
+        // Get all the storeList where alias contains UPDATED_ALIAS
+        defaultStoreShouldNotBeFound("alias.contains=" + UPDATED_ALIAS);
+    }
+
+    @Test
+    @Transactional
+    void getAllStoresByAliasNotContainsSomething() throws Exception {
+        // Initialize the database
+        storeRepository.saveAndFlush(store);
+
+        // Get all the storeList where alias does not contain DEFAULT_ALIAS
+        defaultStoreShouldNotBeFound("alias.doesNotContain=" + DEFAULT_ALIAS);
+
+        // Get all the storeList where alias does not contain UPDATED_ALIAS
+        defaultStoreShouldBeFound("alias.doesNotContain=" + UPDATED_ALIAS);
+    }
+
+    @Test
+    @Transactional
     void getAllStoresByStatusIsEqualToSomething() throws Exception {
         // Initialize the database
         storeRepository.saveAndFlush(store);
@@ -948,6 +1082,58 @@ class StoreResourceIT {
 
     @Test
     @Transactional
+    void getAllStoresByDateCreatedIsEqualToSomething() throws Exception {
+        // Initialize the database
+        storeRepository.saveAndFlush(store);
+
+        // Get all the storeList where dateCreated equals to DEFAULT_DATE_CREATED
+        defaultStoreShouldBeFound("dateCreated.equals=" + DEFAULT_DATE_CREATED);
+
+        // Get all the storeList where dateCreated equals to UPDATED_DATE_CREATED
+        defaultStoreShouldNotBeFound("dateCreated.equals=" + UPDATED_DATE_CREATED);
+    }
+
+    @Test
+    @Transactional
+    void getAllStoresByDateCreatedIsNotEqualToSomething() throws Exception {
+        // Initialize the database
+        storeRepository.saveAndFlush(store);
+
+        // Get all the storeList where dateCreated not equals to DEFAULT_DATE_CREATED
+        defaultStoreShouldNotBeFound("dateCreated.notEquals=" + DEFAULT_DATE_CREATED);
+
+        // Get all the storeList where dateCreated not equals to UPDATED_DATE_CREATED
+        defaultStoreShouldBeFound("dateCreated.notEquals=" + UPDATED_DATE_CREATED);
+    }
+
+    @Test
+    @Transactional
+    void getAllStoresByDateCreatedIsInShouldWork() throws Exception {
+        // Initialize the database
+        storeRepository.saveAndFlush(store);
+
+        // Get all the storeList where dateCreated in DEFAULT_DATE_CREATED or UPDATED_DATE_CREATED
+        defaultStoreShouldBeFound("dateCreated.in=" + DEFAULT_DATE_CREATED + "," + UPDATED_DATE_CREATED);
+
+        // Get all the storeList where dateCreated equals to UPDATED_DATE_CREATED
+        defaultStoreShouldNotBeFound("dateCreated.in=" + UPDATED_DATE_CREATED);
+    }
+
+    @Test
+    @Transactional
+    void getAllStoresByDateCreatedIsNullOrNotNull() throws Exception {
+        // Initialize the database
+        storeRepository.saveAndFlush(store);
+
+        // Get all the storeList where dateCreated is not null
+        defaultStoreShouldBeFound("dateCreated.specified=true");
+
+        // Get all the storeList where dateCreated is null
+        defaultStoreShouldNotBeFound("dateCreated.specified=false");
+    }
+
+    @Test
+    @Transactional
     void getAllStoresByStoreCategoryIsEqualToSomething() throws Exception {
         // Initialize the database
         storeRepository.saveAndFlush(store);
@@ -972,6 +1158,58 @@ class StoreResourceIT {
         defaultStoreShouldNotBeFound("storeCategoryId.equals=" + (storeCategoryId + 1));
     }
 
+    @Test
+    @Transactional
+    void getAllStoresByProductCategoryIsEqualToSomething() throws Exception {
+        // Initialize the database
+        storeRepository.saveAndFlush(store);
+        ProductCategory productCategory;
+        if (TestUtil.findAll(em, ProductCategory.class).isEmpty()) {
+            productCategory = ProductCategoryResourceIT.createEntity(em);
+            em.persist(productCategory);
+            em.flush();
+        } else {
+            productCategory = TestUtil.findAll(em, ProductCategory.class).get(0);
+        }
+        em.persist(productCategory);
+        em.flush();
+        store.addProductCategory(productCategory);
+        storeRepository.saveAndFlush(store);
+        Long productCategoryId = productCategory.getId();
+
+        // Get all the storeList where productCategory equals to productCategoryId
+        defaultStoreShouldBeFound("productCategoryId.equals=" + productCategoryId);
+
+        // Get all the storeList where productCategory equals to (productCategoryId + 1)
+        defaultStoreShouldNotBeFound("productCategoryId.equals=" + (productCategoryId + 1));
+    }
+
+    @Test
+    @Transactional
+    void getAllStoresByProductIsEqualToSomething() throws Exception {
+        // Initialize the database
+        storeRepository.saveAndFlush(store);
+        Product product;
+        if (TestUtil.findAll(em, Product.class).isEmpty()) {
+            product = ProductResourceIT.createEntity(em);
+            em.persist(product);
+            em.flush();
+        } else {
+            product = TestUtil.findAll(em, Product.class).get(0);
+        }
+        em.persist(product);
+        em.flush();
+        store.addProduct(product);
+        storeRepository.saveAndFlush(store);
+        Long productId = product.getId();
+
+        // Get all the storeList where product equals to productId
+        defaultStoreShouldBeFound("productId.equals=" + productId);
+
+        // Get all the storeList where product equals to (productId + 1)
+        defaultStoreShouldNotBeFound("productId.equals=" + (productId + 1));
+    }
+
     /**
      * Executes the search, and checks that the default entity is returned.
      */
@@ -989,7 +1227,9 @@ class StoreResourceIT {
             .andExpect(jsonPath("$.[*].contactEmail").value(hasItem(DEFAULT_CONTACT_EMAIL)))
             .andExpect(jsonPath("$.[*].contactPhone").value(hasItem(DEFAULT_CONTACT_PHONE)))
             .andExpect(jsonPath("$.[*].contactAddress").value(hasItem(DEFAULT_CONTACT_ADDRESS)))
-            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())));
+            .andExpect(jsonPath("$.[*].alias").value(hasItem(DEFAULT_ALIAS)))
+            .andExpect(jsonPath("$.[*].status").value(hasItem(DEFAULT_STATUS.toString())))
+            .andExpect(jsonPath("$.[*].dateCreated").value(hasItem(DEFAULT_DATE_CREATED.toString())));
 
         // Check, that the count call also returns 1
         restStoreMockMvc
@@ -1046,7 +1286,9 @@ class StoreResourceIT {
             .contactEmail(UPDATED_CONTACT_EMAIL)
             .contactPhone(UPDATED_CONTACT_PHONE)
             .contactAddress(UPDATED_CONTACT_ADDRESS)
-            .status(UPDATED_STATUS);
+            .alias(UPDATED_ALIAS)
+            .status(UPDATED_STATUS)
+            .dateCreated(UPDATED_DATE_CREATED);
         StoreDTO storeDTO = storeMapper.toDto(updatedStore);
 
         restStoreMockMvc
@@ -1069,7 +1311,9 @@ class StoreResourceIT {
         assertThat(testStore.getContactEmail()).isEqualTo(UPDATED_CONTACT_EMAIL);
         assertThat(testStore.getContactPhone()).isEqualTo(UPDATED_CONTACT_PHONE);
         assertThat(testStore.getContactAddress()).isEqualTo(UPDATED_CONTACT_ADDRESS);
+        assertThat(testStore.getAlias()).isEqualTo(UPDATED_ALIAS);
         assertThat(testStore.getStatus()).isEqualTo(UPDATED_STATUS);
+        assertThat(testStore.getDateCreated()).isEqualTo(UPDATED_DATE_CREATED);
     }
 
     @Test
@@ -1153,7 +1397,8 @@ class StoreResourceIT {
             .description(UPDATED_DESCRIPTION)
             .contactEmail(UPDATED_CONTACT_EMAIL)
             .contactPhone(UPDATED_CONTACT_PHONE)
-            .contactAddress(UPDATED_CONTACT_ADDRESS);
+            .contactAddress(UPDATED_CONTACT_ADDRESS)
+            .dateCreated(UPDATED_DATE_CREATED);
 
         restStoreMockMvc
             .perform(
@@ -1175,7 +1420,9 @@ class StoreResourceIT {
         assertThat(testStore.getContactEmail()).isEqualTo(UPDATED_CONTACT_EMAIL);
         assertThat(testStore.getContactPhone()).isEqualTo(UPDATED_CONTACT_PHONE);
         assertThat(testStore.getContactAddress()).isEqualTo(UPDATED_CONTACT_ADDRESS);
+        assertThat(testStore.getAlias()).isEqualTo(DEFAULT_ALIAS);
         assertThat(testStore.getStatus()).isEqualTo(DEFAULT_STATUS);
+        assertThat(testStore.getDateCreated()).isEqualTo(UPDATED_DATE_CREATED);
     }
 
     @Test
@@ -1199,7 +1446,9 @@ class StoreResourceIT {
             .contactEmail(UPDATED_CONTACT_EMAIL)
             .contactPhone(UPDATED_CONTACT_PHONE)
             .contactAddress(UPDATED_CONTACT_ADDRESS)
-            .status(UPDATED_STATUS);
+            .alias(UPDATED_ALIAS)
+            .status(UPDATED_STATUS)
+            .dateCreated(UPDATED_DATE_CREATED);
 
         restStoreMockMvc
             .perform(
@@ -1221,7 +1470,9 @@ class StoreResourceIT {
         assertThat(testStore.getContactEmail()).isEqualTo(UPDATED_CONTACT_EMAIL);
         assertThat(testStore.getContactPhone()).isEqualTo(UPDATED_CONTACT_PHONE);
         assertThat(testStore.getContactAddress()).isEqualTo(UPDATED_CONTACT_ADDRESS);
+        assertThat(testStore.getAlias()).isEqualTo(UPDATED_ALIAS);
         assertThat(testStore.getStatus()).isEqualTo(UPDATED_STATUS);
+        assertThat(testStore.getDateCreated()).isEqualTo(UPDATED_DATE_CREATED);
     }
 
     @Test

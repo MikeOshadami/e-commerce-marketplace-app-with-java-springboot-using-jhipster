@@ -3,6 +3,9 @@ package com.mikeoshadami.marketplace.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.mikeoshadami.marketplace.domain.enumeration.Status;
 import java.io.Serializable;
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import org.hibernate.annotations.Cache;
@@ -24,7 +27,7 @@ public class Store implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
     @Column(name = "description")
@@ -49,14 +52,32 @@ public class Store implements Serializable {
     private String contactAddress;
 
     @NotNull
+    @Column(name = "alias", nullable = false, unique = true)
+    private String alias;
+
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private Status status;
+
+    @NotNull
+    @Column(name = "date_created", nullable = false)
+    private Instant dateCreated;
 
     @JsonIgnoreProperties(value = { "store" }, allowSetters = true)
     @OneToOne
     @JoinColumn(unique = true)
     private StoreCategory storeCategory;
+
+    @OneToMany(mappedBy = "store")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "products", "store" }, allowSetters = true)
+    private Set<ProductCategory> productCategories = new HashSet<>();
+
+    @OneToMany(mappedBy = "store")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @JsonIgnoreProperties(value = { "productCategory", "store" }, allowSetters = true)
+    private Set<Product> products = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -177,6 +198,19 @@ public class Store implements Serializable {
         this.contactAddress = contactAddress;
     }
 
+    public String getAlias() {
+        return this.alias;
+    }
+
+    public Store alias(String alias) {
+        this.setAlias(alias);
+        return this;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
+    }
+
     public Status getStatus() {
         return this.status;
     }
@@ -190,6 +224,19 @@ public class Store implements Serializable {
         this.status = status;
     }
 
+    public Instant getDateCreated() {
+        return this.dateCreated;
+    }
+
+    public Store dateCreated(Instant dateCreated) {
+        this.setDateCreated(dateCreated);
+        return this;
+    }
+
+    public void setDateCreated(Instant dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+
     public StoreCategory getStoreCategory() {
         return this.storeCategory;
     }
@@ -200,6 +247,68 @@ public class Store implements Serializable {
 
     public Store storeCategory(StoreCategory storeCategory) {
         this.setStoreCategory(storeCategory);
+        return this;
+    }
+
+    public Set<ProductCategory> getProductCategories() {
+        return this.productCategories;
+    }
+
+    public void setProductCategories(Set<ProductCategory> productCategories) {
+        if (this.productCategories != null) {
+            this.productCategories.forEach(i -> i.setStore(null));
+        }
+        if (productCategories != null) {
+            productCategories.forEach(i -> i.setStore(this));
+        }
+        this.productCategories = productCategories;
+    }
+
+    public Store productCategories(Set<ProductCategory> productCategories) {
+        this.setProductCategories(productCategories);
+        return this;
+    }
+
+    public Store addProductCategory(ProductCategory productCategory) {
+        this.productCategories.add(productCategory);
+        productCategory.setStore(this);
+        return this;
+    }
+
+    public Store removeProductCategory(ProductCategory productCategory) {
+        this.productCategories.remove(productCategory);
+        productCategory.setStore(null);
+        return this;
+    }
+
+    public Set<Product> getProducts() {
+        return this.products;
+    }
+
+    public void setProducts(Set<Product> products) {
+        if (this.products != null) {
+            this.products.forEach(i -> i.setStore(null));
+        }
+        if (products != null) {
+            products.forEach(i -> i.setStore(this));
+        }
+        this.products = products;
+    }
+
+    public Store products(Set<Product> products) {
+        this.setProducts(products);
+        return this;
+    }
+
+    public Store addProduct(Product product) {
+        this.products.add(product);
+        product.setStore(this);
+        return this;
+    }
+
+    public Store removeProduct(Product product) {
+        this.products.remove(product);
+        product.setStore(null);
         return this;
     }
 
@@ -235,7 +344,9 @@ public class Store implements Serializable {
             ", contactEmail='" + getContactEmail() + "'" +
             ", contactPhone='" + getContactPhone() + "'" +
             ", contactAddress='" + getContactAddress() + "'" +
+            ", alias='" + getAlias() + "'" +
             ", status='" + getStatus() + "'" +
+            ", dateCreated='" + getDateCreated() + "'" +
             "}";
     }
 }

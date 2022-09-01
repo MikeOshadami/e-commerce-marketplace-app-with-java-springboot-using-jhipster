@@ -1,7 +1,7 @@
 /** Database Schema Design */
 
 entity Store {
-    name String required
+    name String required unique,
     description String,
     storeUrl String,
     logoUrl String,
@@ -9,13 +9,37 @@ entity Store {
     contactEmail String,
     contactPhone String,
     contactAddress String,
-    status Status required
+    alias String required unique,
+    status Status required,
+    dateCreated Instant required
     }
 
 entity StoreCategory {
-    name String required
+    name String required unique,
     description String required,
-    status Status required
+    status Status required,
+    dateCreated Instant required
+}
+
+/** Product sold by the Online store */
+entity Product {
+    name String required,
+    description String,
+    price BigDecimal required min(0)
+    itemSize Size,
+    stock Integer,
+    imageUrl String,
+    dateCreated Instant required
+}
+
+enum Size {
+    S, M, L, XL, XXL
+}
+
+entity ProductCategory {
+    name String required
+    description String,
+    dateCreated Instant required
 }
 
 enum Status{
@@ -33,11 +57,13 @@ relationship OneToOne {
    // Store{cart} to StoreCategory{customerDetails required},
 }
 
-/*relationship OneToMany {
-    CustomerDetails{cart} to ShoppingCart{customerDetails required},
-    ShoppingCart{order} to ProductOrder{cart required},
+relationship OneToMany {
+   // CustomerDetails{cart} to ShoppingCart{customerDetails required},
+   // ShoppingCart{order} to ProductOrder{cart required},
     ProductCategory{product} to Product{productCategory(name) required}
-}*/
+    Store{productCategory} to ProductCategory{store(name) required}
+    Store{product} to Product{store(name) required}
+}
 
 // Set pagination options
 paginate * with pagination

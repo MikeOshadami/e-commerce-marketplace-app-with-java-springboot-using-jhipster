@@ -33,5 +33,7 @@ public class OpenStoreDto {
     @NotNull
     private String categoryId;
 
+    @NotNull
+    private String alias;
 
 }

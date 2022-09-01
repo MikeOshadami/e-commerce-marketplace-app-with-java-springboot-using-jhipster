@@ -15,7 +15,7 @@
                 <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="name" type="varchar(255)">
-                <constraints nullable="false" />
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_store_category__name" />
             </column>
             <column name="description" type="varchar(255)">
                 <constraints nullable="false" />
@@ -23,8 +23,12 @@
             <column name="status" type="varchar(255)">
                 <constraints nullable="false" />
             </column>
+            <column name="date_created" type="${datetimeType}">
+                <constraints nullable="false" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+        <dropDefaultValue tableName="store_category" columnName="date_created" columnDataType="${datetimeType}"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -47,6 +51,7 @@
             <column name="name" type="string"/>
             <column name="description" type="string"/>
             <column name="status" type="string"/>
+            <column name="date_created" type="date"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

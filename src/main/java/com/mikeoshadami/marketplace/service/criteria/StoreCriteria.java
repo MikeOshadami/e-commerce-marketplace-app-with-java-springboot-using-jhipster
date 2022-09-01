@@ -9,6 +9,7 @@ import tech.jhipster.service.filter.BooleanFilter;
 import tech.jhipster.service.filter.DoubleFilter;
 import tech.jhipster.service.filter.Filter;
 import tech.jhipster.service.filter.FloatFilter;
+import tech.jhipster.service.filter.InstantFilter;
 import tech.jhipster.service.filter.IntegerFilter;
 import tech.jhipster.service.filter.LongFilter;
 import tech.jhipster.service.filter.StringFilter;
@@ -62,9 +63,17 @@ public class StoreCriteria implements Serializable, Criteria {
 
     private StringFilter contactAddress;
 
+    private StringFilter alias;
+
     private StatusFilter status;
 
+    private InstantFilter dateCreated;
+
     private LongFilter storeCategoryId;
+
+    private LongFilter productCategoryId;
+
+    private LongFilter productId;
 
     private Boolean distinct;
 
@@ -80,8 +89,12 @@ public class StoreCriteria implements Serializable, Criteria {
         this.contactEmail = other.contactEmail == null ? null : other.contactEmail.copy();
         this.contactPhone = other.contactPhone == null ? null : other.contactPhone.copy();
         this.contactAddress = other.contactAddress == null ? null : other.contactAddress.copy();
+        this.alias = other.alias == null ? null : other.alias.copy();
         this.status = other.status == null ? null : other.status.copy();
+        this.dateCreated = other.dateCreated == null ? null : other.dateCreated.copy();
         this.storeCategoryId = other.storeCategoryId == null ? null : other.storeCategoryId.copy();
+        this.productCategoryId = other.productCategoryId == null ? null : other.productCategoryId.copy();
+        this.productId = other.productId == null ? null : other.productId.copy();
         this.distinct = other.distinct;
     }
 
@@ -225,6 +238,21 @@ public class StoreCriteria implements Serializable, Criteria {
         this.contactAddress = contactAddress;
     }
 
+    public StringFilter getAlias() {
+        return alias;
+    }
+
+    public StringFilter alias() {
+        if (alias == null) {
+            alias = new StringFilter();
+        }
+        return alias;
+    }
+
+    public void setAlias(StringFilter alias) {
+        this.alias = alias;
+    }
+
     public StatusFilter getStatus() {
         return status;
     }
@@ -240,6 +268,21 @@ public class StoreCriteria implements Serializable, Criteria {
         this.status = status;
     }
 
+    public InstantFilter getDateCreated() {
+        return dateCreated;
+    }
+
+    public InstantFilter dateCreated() {
+        if (dateCreated == null) {
+            dateCreated = new InstantFilter();
+        }
+        return dateCreated;
+    }
+
+    public void setDateCreated(InstantFilter dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+
     public LongFilter getStoreCategoryId() {
         return storeCategoryId;
     }
@@ -253,6 +296,36 @@ public class StoreCriteria implements Serializable, Criteria {
 
     public void setStoreCategoryId(LongFilter storeCategoryId) {
         this.storeCategoryId = storeCategoryId;
+    }
+
+    public LongFilter getProductCategoryId() {
+        return productCategoryId;
+    }
+
+    public LongFilter productCategoryId() {
+        if (productCategoryId == null) {
+            productCategoryId = new LongFilter();
+        }
+        return productCategoryId;
+    }
+
+    public void setProductCategoryId(LongFilter productCategoryId) {
+        this.productCategoryId = productCategoryId;
+    }
+
+    public LongFilter getProductId() {
+        return productId;
+    }
+
+    public LongFilter productId() {
+        if (productId == null) {
+            productId = new LongFilter();
+        }
+        return productId;
+    }
+
+    public void setProductId(LongFilter productId) {
+        this.productId = productId;
     }
 
     public Boolean getDistinct() {
@@ -282,8 +355,12 @@ public class StoreCriteria implements Serializable, Criteria {
             Objects.equals(contactEmail, that.contactEmail) &&
             Objects.equals(contactPhone, that.contactPhone) &&
             Objects.equals(contactAddress, that.contactAddress) &&
+            Objects.equals(alias, that.alias) &&
             Objects.equals(status, that.status) &&
+            Objects.equals(dateCreated, that.dateCreated) &&
             Objects.equals(storeCategoryId, that.storeCategoryId) &&
+            Objects.equals(productCategoryId, that.productCategoryId) &&
+            Objects.equals(productId, that.productId) &&
             Objects.equals(distinct, that.distinct)
         );
     }
@@ -300,8 +377,12 @@ public class StoreCriteria implements Serializable, Criteria {
             contactEmail,
             contactPhone,
             contactAddress,
+            alias,
             status,
+            dateCreated,
             storeCategoryId,
+            productCategoryId,
+            productId,
             distinct
         );
     }
@@ -319,8 +400,12 @@ public class StoreCriteria implements Serializable, Criteria {
             (contactEmail != null ? "contactEmail=" + contactEmail + ", " : "") +
             (contactPhone != null ? "contactPhone=" + contactPhone + ", " : "") +
             (contactAddress != null ? "contactAddress=" + contactAddress + ", " : "") +
+            (alias != null ? "alias=" + alias + ", " : "") +
             (status != null ? "status=" + status + ", " : "") +
+            (dateCreated != null ? "dateCreated=" + dateCreated + ", " : "") +
             (storeCategoryId != null ? "storeCategoryId=" + storeCategoryId + ", " : "") +
+            (productCategoryId != null ? "productCategoryId=" + productCategoryId + ", " : "") +
+            (productId != null ? "productId=" + productId + ", " : "") +
             (distinct != null ? "distinct=" + distinct + ", " : "") +
             "}";
     }
