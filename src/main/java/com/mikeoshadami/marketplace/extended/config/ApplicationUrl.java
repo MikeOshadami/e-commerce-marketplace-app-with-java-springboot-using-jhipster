@@ -12,5 +12,11 @@ public interface ApplicationUrl {
 
     String STORE_PRODUCT_CATEGORIES = "/product/category/{alias}";
 
+    String CREATE_PRODUCT = "/product/create";
+
+    String PRODUCT_LIST = "/products/{alias}";
+
+    String PRODUCT_DETAILS = "/product/{productId}";
+
 
 }

@@ -12,6 +12,7 @@ import com.mikeoshadami.marketplace.service.criteria.ProductCategoryCriteria;
 import com.mikeoshadami.marketplace.service.criteria.StoreCriteria;
 import com.mikeoshadami.marketplace.service.dto.ProductCategoryDTO;
 import com.mikeoshadami.marketplace.service.dto.StoreDTO;
+import liquibase.repackaged.org.apache.commons.collections4.CollectionUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,12 +81,12 @@ public class CategoryServiceImpl implements ProductsCategoryService {
             LongFilter storeFilter = new LongFilter();
             storeFilter.setEquals(storeDTO.getId());
             productCategoryCriteria.setStoreId(storeFilter);
-            List<ProductCategoryDTO> productCategoryDTOS = productCategoryQueryService.findByCriteria(productCategoryCriteria).;
-            if (productCategoryDTOS.size() > 0) {
+            List<ProductCategoryDTO> productCategoryDTOS = productCategoryQueryService.findByCriteria(productCategoryCriteria);
+            if (CollectionUtils.isNotEmpty(productCategoryDTOS)) {
                 responseDto.setData(productCategoryDTOS);
-                responseDto.setStatus(ExtendedConstants.ResponseCode.SUCCESS.getCode());
-                responseDto.setMessage(ExtendedConstants.ResponseCode.SUCCESS.getDescription());
             }
+            responseDto.setStatus(ExtendedConstants.ResponseCode.SUCCESS.getCode());
+            responseDto.setMessage(ExtendedConstants.ResponseCode.SUCCESS.getDescription());
         }
         return responseDto;
     }
